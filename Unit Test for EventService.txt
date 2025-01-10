@@ -1,0 +1,49 @@
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class EventServiceTest {
+
+    @InjectMocks
+    private EventService eventService;
+
+    @Mock
+    private EventRepository eventRepository;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testGetAllEvents() {
+        Event event1 = new Event(1L, "Event 1", "Description 1");
+        Event event2 = new Event(2L, "Event 2", "Description 2");
+        when(eventRepository.findAll()).thenReturn(Arrays.asList(event1, event2));
+
+        List<Event> events = eventService.getAllEvents();
+
+        assertEquals(2, events.size());
+        verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testCreateEvent() {
+        Event event = new Event(null, "New Event", "New Description");
+        when(eventRepository.save(any(Event.class))).thenReturn(new Event(1L, "New Event", "New Description"));
+
+        Event createdEvent = eventService.createEvent(event);
+
+        assertNotNull(createdEvent.getId());
+        assertEquals("New Event", createdEvent.getName());
+        verify(eventRepository, times(1)).save(event);
+    }
+}
